@@ -1,0 +1,10 @@
+{
+  "name": "점프 점프! 재미 줄넘기",
+  "description": "아이들이 재미있고 친근하게 줄넘기 동작을 3단계로 배우고, 크로마키 가상 줄넘기 카메라와 함께 실내외에서 안전하게 실전 연습하는 귀여운 유치원 맞춤형 줄넘기 앱입니다.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
