@@ -98,7 +98,7 @@ export default function App() {
               <span className="text-xl">⭐</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-display font-black text-[#FF8B13] tracking-tight whitespace-nowrap">
-              점프 점프! 재미 줄넘기
+              3단계 도전 줄넘기
             </h1>
           </div>
 

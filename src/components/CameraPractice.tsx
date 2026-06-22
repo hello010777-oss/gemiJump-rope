@@ -17,6 +17,7 @@ export default function CameraPractice({ onBack, cameraStream, cameraState }: Pr
   const [countdown, setCountdown] = useState<number | null>(null);
   
   // Custom snapshot highlight
+  const [photoCountdown, setPhotoCountdown] = useState<number | null>(null);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
   const [showSuccessBanner, setShowSuccessBanner] = useState<boolean>(false);
@@ -221,32 +222,47 @@ export default function CameraPractice({ onBack, cameraStream, cameraState }: Pr
     playPop();
   };
 
-  // Snap photo with virtual frames
+  // Snap photo with virtual frames after 3, 2, 1 countdown
   const handleTakeSnapshot = () => {
+    if (photoCountdown !== null) return;
     playPop();
-    const video = videoRef.current;
-    const canvas = photoCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    setPhotoCountdown(3);
 
-    // Draw video stream (absolutely raw camera image, no frames, no overlays, no texts)
-    if (cameraState === 'active' && video) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    } else {
-      // Draw a clean background with a neat capture completion message
-      ctx.fillStyle = '#e0f2fe';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    let current = 3;
+    const interval = setInterval(() => {
+      current -= 1;
+      if (current > 0) {
+        setPhotoCountdown(current);
+        playPop();
+      } else {
+        clearInterval(interval);
+        setPhotoCountdown(null);
 
-    setCapturedPhoto(canvas.toDataURL('image/png'));
-    playSuccess();
+        // Draw snapshot immediately
+        const video = videoRef.current;
+        const canvas = photoCanvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Draw raw video stream
+        if (cameraState === 'active' && video) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.fillStyle = '#e0f2fe';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        setCapturedPhoto(canvas.toDataURL('image/png'));
+        playSuccess();
+      }
+    }, 1000);
   };
 
   const handleDownloadPhoto = () => {
     if (!capturedPhoto) return;
     const link = document.createElement('a');
-    link.download = `줄넘기왕_찰칵_${Date.now()}.png`;
+    link.download = `photo_${Date.now()}.png`;
     link.href = capturedPhoto;
     link.click();
     playPop();
@@ -280,7 +296,7 @@ export default function CameraPractice({ onBack, cameraStream, cameraState }: Pr
 
         <div className="bg-[#FFE569]/90 text-[#333333] px-5 py-2 rounded-full font-display border-2 border-white text-base font-extrabold flex items-center gap-1.5 shadow-sm">
           <Trophy className="w-5 h-5 text-amber-600 fill-amber-500" />
-          <span>도전! 유치원 줄넘기 왕 👑</span>
+          <span>3단계 도전 줄넘기 👑</span>
         </div>
       </div>
 
@@ -337,6 +353,18 @@ export default function CameraPractice({ onBack, cameraStream, cameraState }: Pr
               <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                 <div className="bg-[#ff4081] text-white rounded-full w-36 h-36 flex items-center justify-center border-8 border-white animate-ping">
                   <span className="text-7xl font-display font-black text-white">{countdown}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Photo Countdown Overlay */}
+            {photoCountdown !== null && (
+              <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-30 animate-fade-in">
+                <div className="text-yellow-300 font-display font-black text-2xl md:text-3xl mb-4 tracking-tight animate-bounce">
+                  📸 치~즈! 멋진 포즈 준비! ✌️
+                </div>
+                <div className="bg-pink-500 text-white rounded-full w-40 h-40 flex items-center justify-center border-8 border-white shadow-2xl animate-pulse">
+                  <span className="text-8xl font-display font-black text-white">{photoCountdown}</span>
                 </div>
               </div>
             )}
