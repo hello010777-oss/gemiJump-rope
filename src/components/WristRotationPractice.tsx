@@ -161,13 +161,6 @@ export default function WristRotationPractice({ onSuccess, onReset, isCompleted,
           </div>
         )}
 
-        {/* Track Progress implicitly within timing helper */}
-        {!successCelebration && (
-          <div className="absolute top-4 right-4 flex items-center gap-2 bg-[#FF8B13] text-white border-2 border-white px-5 py-2.5 rounded-full shadow-lg z-20 pointer-events-none">
-            <span className="text-sm font-black">미션 성공 횟수: {rotations} / 10 ⭐</span>
-          </div>
-        )}
-
         {/* Custom Visual Hand Zones over camera stream */}
         <div className="absolute top-1/4 left-8 md:left-20 w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-dashed border-amber-300 flex flex-col items-center justify-center animate-pulse bg-amber-500/15 backdrop-blur-xs z-20 animate-duration-3000">
           <span className="text-xs font-black text-white bg-amber-500 px-2 py-1 rounded-full absolute -top-4 shadow-sm">왼손 돌리기</span>
