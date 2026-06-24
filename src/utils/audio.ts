@@ -4,6 +4,7 @@
  */
 
 let audioCtx: AudioContext | null = null;
+const activeSources = new Set<AudioScheduledSourceNode>();
 
 function getContext(): AudioContext {
   if (!audioCtx) {
@@ -13,6 +14,13 @@ function getContext(): AudioContext {
     audioCtx.resume();
   }
   return audioCtx;
+}
+
+function trackSource(source: AudioScheduledSourceNode) {
+  activeSources.add(source);
+  source.onended = () => {
+    activeSources.delete(source);
+  };
 }
 
 /**
@@ -34,6 +42,7 @@ export function playPop() {
     gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
 
+    trackSource(osc);
     osc.start();
     osc.stop(ctx.currentTime + 0.09);
   } catch (error) {
@@ -61,6 +70,7 @@ export function playBoing() {
     gain.gain.setValueAtTime(0.2, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
 
+    trackSource(osc);
     osc.start();
     osc.stop(ctx.currentTime + 0.22);
   } catch (e) {
@@ -102,7 +112,9 @@ export function playSwoosh() {
     filter.connect(gain);
     gain.connect(ctx.destination);
 
+    trackSource(noiseNode);
     noiseNode.start();
+    noiseNode.stop(ctx.currentTime + 0.15);
   } catch (e) {
     // blocked
   }
@@ -130,6 +142,7 @@ export function playSuccess() {
       gain.gain.setValueAtTime(0.15, startTime);
       gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.4);
       
+      trackSource(osc);
       osc.start(startTime);
       osc.stop(startTime + 0.45);
     });
@@ -172,6 +185,7 @@ export function playGrandCelebration() {
       gain.gain.setValueAtTime(0.1, now + note.t);
       gain.gain.exponentialRampToValueAtTime(0.01, now + note.t + 0.5);
 
+      trackSource(osc);
       osc.start(now + note.t);
       osc.stop(now + note.t + 0.6);
     });
@@ -212,6 +226,7 @@ export function startRhythmBeat(bpm: number) {
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.04);
       }
 
+      trackSource(osc);
       osc.start();
       osc.stop(ctx.currentTime + 0.1);
       tick = !tick;
@@ -224,4 +239,16 @@ export function stopRhythmBeat() {
     clearInterval(beatInterval);
     beatInterval = null;
   }
+}
+
+export function stopAllAudio() {
+  stopRhythmBeat();
+  activeSources.forEach(source => {
+    try {
+      source.stop();
+    } catch (e) {
+      // Already stopped or not started yet.
+    }
+  });
+  activeSources.clear();
 }

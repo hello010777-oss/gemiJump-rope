@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&display=swap');
+@import "tailwindcss";
+
 @font-face {
     font-family: 'SchoolSafeOuting';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-5@1.0/HakgyoansimNadeuriTTF-L.woff2') format('woff2');
@@ -11,9 +14,6 @@
     font-weight: 700;
     font-display: swap;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Jua&display=swap');
-@import "tailwindcss";
 
 @theme {
   --font-sans: "Gaegu", "Jua", sans-serif;

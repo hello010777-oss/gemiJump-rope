@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Star, Sparkles, Smile, Award, CheckCircle2, Flame, Heart, Play } from 'lucide-react';
-import { playPop, playSuccess } from './utils/audio';
+import { Sparkles, Heart, Play } from 'lucide-react';
+import { playPop, stopAllAudio } from './utils/audio';
 import { AppMode } from './types';
 import WristRotationPractice from './components/WristRotationPractice';
 import JumpingPractice from './components/JumpingPractice';
@@ -18,31 +18,33 @@ export default function App() {
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [cameraState, setCameraState] = useState<'requesting' | 'active' | 'error' | 'fallback'>('requesting');
 
-  useEffect(() => {
-    let active = true;
-    async function setupCamera() {
-      try {
-        setCameraState('requesting');
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-          audio: false
-        });
-        if (active) {
-          setCameraStream(stream);
-          setCameraState('active');
-        }
-      } catch (err) {
-        console.warn('Camera failed', err);
-        if (active) {
-          setCameraState('fallback');
-        }
-      }
+  const [hasStarted, setHasStarted] = useState<boolean>(false);
+
+  const setupCamera = async () => {
+    try {
+      setCameraState('requesting');
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+        audio: false
+      });
+      setCameraStream(stream);
+      setCameraState('active');
+      setHasStarted(true);
+    } catch (err) {
+      console.warn('Camera failed', err);
+      setCameraState('fallback');
+      setHasStarted(true);
     }
-    setupCamera();
+  };
+
+  useEffect(() => {
+    // We will wait for user interaction to start camera
     return () => {
-      active = false;
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
     };
-  }, []);
+  }, [cameraStream]);
 
   const handleStepSuccess = (stepId: number) => {
     setSucceededSteps(prev => ({ ...prev, [stepId]: true }));
@@ -52,25 +54,57 @@ export default function App() {
       // Clear Step 2 completed state so it starts fresh when transitioning!
       setSucceededSteps(prev => ({ ...prev, 1: true, 2: false }));
       setTimeout(() => {
+        stopAllAudio();
         setActiveStep(2);
       }, 2000);
     } else if (stepId === 2) {
       // Step 2 automatically transitions to Step 3 (Real Practice) after completing successfully
       setSucceededSteps(prev => ({ ...prev, 2: true, 3: false }));
       setTimeout(() => {
+        stopAllAudio();
         setMode('camera');
         setActiveStep(3);
       }, 2000);
     }
   };
 
-  const handleStartRealPractice = () => {
-    playSuccess();
-    setMode('camera');
-    setActiveStep(3);
-  };
-
-  const allCompleted = succeededSteps[1] && succeededSteps[2];
+  if (!hasStarted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-pink-50 flex items-center justify-center p-6 font-sans">
+        <div className="max-w-md w-full bg-white rounded-[3rem] shadow-2xl p-8 border-4 border-white flex flex-col items-center text-center gap-6">
+          <div className="w-24 h-24 bg-amber-100 rounded-[2rem] flex items-center justify-center text-5xl shadow-inner animate-bounce">
+            🎈
+          </div>
+          <h1 className="text-3xl font-display font-black text-orange-600 tracking-tight">
+            3단계 도전 줄넘기
+          </h1>
+          <p className="text-stone-600 font-medium leading-relaxed">
+            안녕하세요! 아이들을 위한 재미있는 가상 줄넘기 놀이방입니다. <br/>
+            화면 위에 가상 줄넘기 선을 보여주기 위해 카메라 권한이 필요해요.
+          </p>
+          <div className="w-full bg-orange-50 border-2 border-orange-100 rounded-3xl p-4 text-left text-sm text-stone-600 leading-relaxed">
+            <p className="font-black text-orange-700 mb-2">카메라 안전 안내</p>
+            <p>카메라 영상은 이 기기의 브라우저 안에서만 표시됩니다.</p>
+            <p>서버, AI API, 외부 서비스로 영상이나 사진을 보내지 않습니다.</p>
+            <p>기념 사진은 다운로드 버튼을 눌렀을 때만 기기에 저장됩니다.</p>
+          </div>
+          <button
+            onClick={setupCamera}
+            className="w-full bg-[#FF8B13] hover:bg-orange-500 text-white font-black text-xl py-5 rounded-3xl transition active:scale-95 cursor-pointer shadow-lg flex items-center justify-center gap-2"
+          >
+            <Play className="w-6 h-6 fill-current" />
+            <span>시작하기!</span>
+          </button>
+          <a
+            href="/privacy.html"
+            className="text-xs text-stone-500 underline underline-offset-4 hover:text-orange-600"
+          >
+            개인정보 및 카메라 사용 안내 보기
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-6 px-4 flex flex-col items-center select-none font-sans relative w-full max-w-none xl:max-w-[95%] mx-auto">
@@ -106,6 +140,7 @@ export default function App() {
           <div className="flex flex-wrap gap-2.5 w-full md:w-auto">
             <button
               onClick={() => {
+                stopAllAudio();
                 playPop();
                 setMode('tutorial');
                 setActiveStep(1);
@@ -125,6 +160,7 @@ export default function App() {
 
             <button
               onClick={() => {
+                stopAllAudio();
                 playPop();
                 setMode('tutorial');
                 setActiveStep(2);
@@ -144,6 +180,7 @@ export default function App() {
 
             <button
               onClick={() => {
+                stopAllAudio();
                 playPop();
                 setMode('camera');
                 setActiveStep(3);
@@ -189,6 +226,7 @@ export default function App() {
           ) : (
             <CameraPractice 
               onBack={() => {
+                stopAllAudio();
                 setMode('tutorial');
                 setActiveStep(2);
               }} 

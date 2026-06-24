@@ -1,10 +1,7 @@
 {
   "name": "3단계 도전 줄넘기",
-  "description": "아이들이 재미있고 친근하게 줄넘기 동작을 3단계로 배우고, 크로마키 가상 줄넘기 카메라와 함께 실내외에서 안전하게 실전 연습하는 귀여운 초등학교 저학년 및 어린이 맞춤형 줄넘기 앱입니다.",
+  "description": "아이들이 줄넘기 동작을 3단계로 배우고, 브라우저 카메라 화면 위에 가상 줄넘기 선을 겹쳐 실전 연습을 하는 어린이 맞춤형 줄넘기 앱입니다. 카메라 영상은 기기 안에서만 표시되며 서버로 전송되지 않습니다.",
   "requestFramePermissions": [
     "camera"
-  ],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]
 }

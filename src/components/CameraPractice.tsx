@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera, Volume2, VolumeX, RefreshCw, Trophy, ArrowLeft, Star, Heart, Sparkles, Smile, Download } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { playBoing, playSuccess, playSwoosh, startRhythmBeat, stopRhythmBeat, playPop, playGrandCelebration } from '../utils/audio';
+import { playBoing, playSuccess, playSwoosh, startRhythmBeat, stopAllAudio, stopRhythmBeat, playPop } from '../utils/audio';
 
 interface Props {
   onBack: () => void;
@@ -55,22 +55,6 @@ export default function CameraPractice({ onBack, cameraStream, cameraState }: Pr
       videoRef.current.play().catch(err => console.warn(err));
     }
   }, [cameraStream, cameraState]);
-
-  // Rhythm swing sound trigger matching the bpm (no auto count increment!)
-  useEffect(() => {
-    let interval: any = null;
-    if (isPlaying && !showCelebration) {
-      const msPerJump = (60 / getBpm()) * 1000;
-      interval = setInterval(() => {
-        if (soundEnabled) {
-          playBoing();
-        }
-      }, msPerJump);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isPlaying, speed, showCelebration, soundEnabled]);
 
   // Rope loop draw loop
   useEffect(() => {
@@ -206,9 +190,10 @@ export default function CameraPractice({ onBack, cameraStream, cameraState }: Pr
 
   const handleFinishPractice = () => {
     setIsPlaying(false);
+    setSoundEnabled(false);
     setShowCelebration(true);
     setShowSuccessBanner(true);
-    playGrandCelebration();
+    stopAllAudio();
     triggerFireworks();
 
     // Auto-hide the success banner after 4.5 seconds so they can capture clear photo
