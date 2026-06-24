@@ -198,15 +198,7 @@ export default function App() {
           )}
         </div>
 
-        {/* Playful Bottom Logo Section */}
-        <div className="mt-8 mb-4 flex flex-col items-center gap-1 opacity-95 hover:opacity-100 transition duration-300">
-          <img 
-            src="https://i.imgur.com/0OMgykW_d.png?maxwidth=520&shape=thumb&fidelity=high" 
-            alt="Logo" 
-            className="h-14 md:h-18 object-contain drop-shadow-md"
-            referrerPolicy="no-referrer"
-          />
-        </div>
+
 
       </div>
 
